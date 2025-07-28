@@ -1,499 +1,432 @@
 /* File: TicTacToe.css
    Save Location: src/components/TicTacToe.css
-   Description: Beautiful modern styling for React Tic-Tac-Toe game */
+   Description: Clean, minimal Tic-Tac-Toe with named opponents */
 
-   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
-   .tic-tac-toe-container {
-    font-family: 'Poppins', sans-serif;
-    
-    /* === BACKGROUND OPTIONS - UNCOMMENT YOUR FAVORITE === */
-    
-    /* 🟣 Original Violet/Purple Gradient */
-    /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
-    
-    /* 🌊 Ocean Blue */
-    /* background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); */
-    
-    /* 🌅 Sunset Orange */
-    /* background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); */
-    
-    /* 🌿 Forest Green */
-    /* background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); */
-    
-    /* 🌙 Dark Elegance */
-    background: linear-gradient(135deg, #232526 0%, #414345 100%);
-    
-    /* 🔥 Fire Red */
-    /* background: linear-gradient(135deg, #ff6a00 0%, #ee0979 100%); */
-    
-    /* 💎 Cool Gray */
-    /* background: linear-gradient(135deg, #bdc3c7 0%, #2c3e50 100%); */
-    
-    /* 🌈 Pastel Rainbow */
-    /* background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); */
-    
-    /* ⚡ Electric Blue */
-    /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
-    
-    /* 🍃 Mint Fresh */
-    /* background: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%); */
-    
-    /* 🌺 Pink Blossom */
-    /* background: linear-gradient(135deg, #fad0c4 0%, #ffd1ff 100%); */
-    
-    /* 🌃 Night Sky */
-    /* background: linear-gradient(135deg, #0c3483 0%, #a2b6df 100%); */
-    
-    /* 🍊 Citrus Burst */
-    /* background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%); */
-    
-    /* 🏔️ Arctic White */
-    /* background: linear-gradient(135deg, #e6e6e6 0%, #ffffff 100%); */
-    
-    /* 🌋 Volcanic */
-    /* background: linear-gradient(135deg, #ff7f7f 0%, #ff3030 100%); */
-    
-    /* === SOLID COLOR OPTIONS === */
-    
-    /* Deep Blue Solid */
-    /* background: #2c3e50; */
-    
-    /* Dark Gray Solid */
-    /* background: #34495e; */
-    
-    /* Forest Green Solid */
-    /* background: #27ae60; */
-    
-    /* Elegant Purple Solid */
-    /* background: #8e44ad; */
-    
-    min-height: 100vh;
-    margin: 0;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    overflow: hidden;
-  }
-  
+   * {
+     box-sizing: border-box;
+   }
    
-   .tic-tac-toe-container::before {
-     content: '';
-     position: absolute;
-     top: 0;
-     left: 0;
-     right: 0;
-     bottom: 0;
-     background: 
-       radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-       radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
-     pointer-events: none;
+   :root {
+     --primary-color: #2563eb;
+     --text-dark: #1f2937;
+     --text-light: #6b7280;
+     --border-color: #e5e7eb;
+     --bg-white: #ffffff;
+     --bg-light: #f9fafb;
+     --hover-bg: #f3f4f6;
+     --success-color: #10b981;
+     --error-color: #ef4444;
+     --easy-color: #10b981;
+     --medium-color: #f59e0b;
+     --expert-color: #ef4444;
+   }
+   
+   body {
+     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+     background: var(--bg-white);
+     color: var(--text-dark);
+     line-height: 1.6;
+     margin: 0;
+     padding: 0;
+   }
+   
+   .tic-tac-toe-container {
+     min-height: 100vh;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     padding: 40px 20px;
+     background: var(--bg-white);
    }
    
    .game-wrapper {
      max-width: 500px;
      width: 100%;
-     background: rgba(255, 255, 255, 0.12);
      padding: 40px;
-     border-radius: 25px;
-     backdrop-filter: blur(20px);
-     border: 1px solid rgba(255, 255, 255, 0.18);
-     box-shadow: 
-       0 8px 32px rgba(0, 0, 0, 0.37),
-       inset 0 1px 0 rgba(255, 255, 255, 0.05);
-     position: relative;
-     z-index: 1;
+     background: var(--bg-white);
+     border-radius: 12px;
+     border: 1px solid var(--border-color);
+     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
    }
    
-   .game-wrapper::before {
-     content: '';
-     position: absolute;
-     top: 0;
-     left: 0;
-     right: 0;
-     bottom: 0;
-     background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-     border-radius: 25px;
-     pointer-events: none;
-   }
-   
-   .game-wrapper h1 {
+   .game-title {
      text-align: center;
-     margin-bottom: 30px;
-     font-size: 2.8em;
-     font-weight: 700;
-     background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
-     -webkit-background-clip: text;
-     -webkit-text-fill-color: transparent;
-     background-clip: text;
-     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+     font-size: 2.5rem;
+     font-weight: 300;
+     color: var(--text-dark);
+     margin-bottom: 48px;
      letter-spacing: -0.02em;
    }
    
    .game-mode {
-     text-align: center;
-     margin-bottom: 25px;
      display: flex;
      justify-content: center;
-     gap: 15px;
+     gap: 8px;
+     margin-bottom: 32px;
+     background: var(--bg-light);
+     padding: 4px;
+     border-radius: 8px;
+     border: 1px solid var(--border-color);
    }
    
    .mode-btn {
      padding: 12px 24px;
      border: none;
-     border-radius: 50px;
-     cursor: pointer;
+     border-radius: 6px;
      font-size: 14px;
      font-weight: 500;
-     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-     position: relative;
-     overflow: hidden;
-     font-family: 'Poppins', sans-serif;
-   }
-   
-   .mode-btn::before {
-     content: '';
-     position: absolute;
-     top: 0;
-     left: -100%;
-     width: 100%;
-     height: 100%;
-     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-     transition: left 0.5s;
-   }
-   
-   .mode-btn:hover::before {
-     left: 100%;
+     cursor: pointer;
+     transition: all 0.2s ease;
+     background: transparent;
+     color: var(--text-light);
    }
    
    .mode-btn.active {
-     background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+     background: var(--primary-color);
      color: white;
-     transform: translateY(-2px);
-     box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
    }
    
-   .mode-btn:not(.active) {
-     background: rgba(255, 255, 255, 0.15);
-     color: white;
-     border: 1px solid rgba(255, 255, 255, 0.2);
+   .mode-btn:hover:not(.active) {
+     background: var(--hover-bg);
+     color: var(--text-dark);
    }
    
-   .mode-btn:hover {
-     transform: translateY(-3px);
-     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+   /* Opponent Selection */
+   .opponent-selection {
+     margin-bottom: 32px;
+     padding: 24px;
+     background: var(--bg-light);
+     border-radius: 8px;
+     border: 1px solid var(--border-color);
+   }
+   
+   .opponent-selection h3 {
+     margin: 0 0 16px 0;
+     font-size: 16px;
+     font-weight: 600;
+     color: var(--text-dark);
+     text-align: center;
+   }
+   
+   .opponents-grid {
+     display: grid;
+     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+     gap: 12px;
+   }
+   
+   .opponent-card {
+     padding: 16px;
+     background: var(--bg-white);
+     border: 2px solid var(--border-color);
+     border-radius: 8px;
+     cursor: pointer;
+     transition: all 0.2s ease;
+     text-align: center;
+   }
+   
+   .opponent-card:hover {
+     border-color: var(--primary-color);
+     background: var(--hover-bg);
+   }
+   
+   .opponent-card.selected {
+     border-color: var(--primary-color);
+     background: var(--primary-color);
+     color: white;
+   }
+   
+   .opponent-name {
+     font-size: 14px;
+     font-weight: 600;
+     margin-bottom: 4px;
+   }
+   
+   .opponent-difficulty {
+     font-size: 12px;
+     font-weight: 500;
+     padding: 2px 8px;
+     border-radius: 12px;
+     display: inline-block;
+     margin-bottom: 8px;
+   }
+   
+   .difficulty-easy {
+     background: rgba(16, 185, 129, 0.1);
+     color: var(--easy-color);
+   }
+   
+   .difficulty-medium {
+     background: rgba(245, 158, 11, 0.1);
+     color: var(--medium-color);
+   }
+   
+   .difficulty-expert {
+     background: rgba(239, 68, 68, 0.1);
+     color: var(--expert-color);
+   }
+   
+   .opponent-card.selected .difficulty-easy,
+   .opponent-card.selected .difficulty-medium,
+   .opponent-card.selected .difficulty-expert {
+     background: rgba(255, 255, 255, 0.2);
+     color: white;
+   }
+   
+   .opponent-description {
+     font-size: 11px;
+     color: var(--text-light);
+     line-height: 1.3;
+   }
+   
+   .opponent-card.selected .opponent-description {
+     color: rgba(255, 255, 255, 0.8);
    }
    
    .scoreboard {
-     text-align: center;
-     margin-bottom: 25px;
-     font-size: 1.3em;
-     background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-     padding: 20px;
-     border-radius: 20px;
-     border: 1px solid rgba(255, 255, 255, 0.1);
-     backdrop-filter: blur(10px);
-   }
-   
-   .score-display {
      display: flex;
      justify-content: space-between;
      align-items: center;
-     color: white;
+     margin-bottom: 32px;
+     padding: 24px;
+     background: var(--bg-light);
+     border-radius: 8px;
+     border: 1px solid var(--border-color);
+   }
+   
+   .score-item {
+     text-align: center;
+   }
+   
+   .score-label {
+     font-size: 14px;
+     color: var(--text-light);
+     margin-bottom: 8px;
      font-weight: 500;
    }
    
-   .score-display span:first-child,
-   .score-display span:last-child {
-     font-size: 1.1em;
+   .score-value {
+     font-size: 24px;
      font-weight: 600;
+     color: var(--text-dark);
    }
    
-   .current-mode {
-     font-weight: 400;
-     font-size: 0.85em;
-     opacity: 0.9;
+   .current-opponent {
+     font-size: 14px;
+     color: var(--text-light);
+     padding: 8px 16px;
+     background: var(--bg-white);
+     border-radius: 6px;
+     border: 1px solid var(--border-color);
+     text-align: center;
+     max-width: 120px;
    }
    
    .status {
      text-align: center;
-     margin-bottom: 25px;
-     font-size: 1.4em;
-     font-weight: 600;
-     color: white;
+     font-size: 18px;
+     font-weight: 500;
+     color: var(--text-dark);
+     margin-bottom: 32px;
      min-height: 1.5em;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+   }
+   
+   .status.thinking {
+     color: var(--primary-color);
    }
    
    .board {
-     background: linear-gradient(135deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.1) 100%);
      display: grid;
-     grid-template-columns: repeat(3, 100px);
-     grid-gap: 12px;
-     margin: 30px auto;
-     width: max-content;
-     padding: 20px;
-     border-radius: 20px;
-     transition: all 0.3s ease;
-     box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
-   }
-   
-   .board.thinking {
-     opacity: 0.7;
-     pointer-events: none;
-     transform: scale(0.98);
+     grid-template-columns: repeat(3, 1fr);
+     gap: 8px;
+     margin: 0 auto 40px;
+     max-width: 300px;
+     padding: 24px;
+     background: var(--bg-light);
+     border-radius: 12px;
+     border: 1px solid var(--border-color);
    }
    
    .cell {
-     width: 100px;
-     height: 100px;
-     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-     border: none;
-     border-radius: 15px;
-     font-size: 2.8em;
-     font-weight: 700;
+     width: 90px;
+     height: 90px;
+     background: var(--bg-white);
+     border: 1px solid var(--border-color);
+     border-radius: 8px;
+     font-size: 32px;
+     font-weight: 600;
      display: flex;
      align-items: center;
      justify-content: center;
      cursor: pointer;
-     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-     color: #2c3e50;
-     user-select: none;
-     position: relative;
-     overflow: hidden;
-     box-shadow: 
-       0 4px 15px rgba(0, 0, 0, 0.1),
-       inset 0 1px 0 rgba(255, 255, 255, 0.6);
-   }
-   
-   .cell::before {
-     content: '';
-     position: absolute;
-     top: 0;
-     left: 0;
-     right: 0;
-     bottom: 0;
-     background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, transparent 50%);
-     opacity: 0;
-     transition: opacity 0.3s ease;
-   }
-   
-   .cell:hover:not(.played)::before {
-     opacity: 1;
+     transition: all 0.2s ease;
+     color: var(--text-dark);
+     font-family: 'Inter', monospace;
    }
    
    .cell:hover:not(.played) {
-     transform: translateY(-5px) scale(1.05);
-     box-shadow: 
-       0 8px 25px rgba(0, 0, 0, 0.15),
-       inset 0 1px 0 rgba(255, 255, 255, 0.8);
+     background: var(--hover-bg);
+     border-color: var(--primary-color);
    }
    
    .cell.played {
-     transform: scale(1.02);
      cursor: default;
-     box-shadow: 
-       0 2px 10px rgba(0, 0, 0, 0.1),
-       inset 0 1px 0 rgba(255, 255, 255, 0.3);
+     background: var(--bg-white);
    }
    
    .cell.winner {
-     background: linear-gradient(135deg, #90ee90 0%, #32cd32 100%);
+     background: var(--success-color);
      color: white;
-     animation: winner-pulse 1.5s ease-in-out infinite;
-     box-shadow: 
-       0 6px 20px rgba(50, 205, 50, 0.4),
-       inset 0 1px 0 rgba(255, 255, 255, 0.4);
+     border-color: var(--success-color);
    }
    
-   .cell.ai-move {
-     background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+   .cell.opponent-move {
+     background: var(--primary-color);
      color: white;
-     box-shadow: 
-       0 4px 15px rgba(255, 107, 107, 0.3),
-       inset 0 1px 0 rgba(255, 255, 255, 0.4);
+     border-color: var(--primary-color);
    }
    
-   @keyframes winner-pulse {
-     0%, 100% { 
-       transform: scale(1.02);
-       box-shadow: 0 6px 20px rgba(50, 205, 50, 0.4);
-     }
-     50% { 
-       transform: scale(1.08);
-       box-shadow: 0 8px 30px rgba(50, 205, 50, 0.6);
-     }
+   .cell:disabled {
+     cursor: not-allowed;
+     opacity: 0.7;
    }
    
    .controls {
-     text-align: center;
-     margin-top: 30px;
      display: flex;
      justify-content: center;
-     gap: 15px;
+     gap: 16px;
      flex-wrap: wrap;
    }
    
    .control-btn {
-     padding: 14px 28px;
-     font-size: 16px;
+     padding: 12px 24px;
+     font-size: 14px;
      font-weight: 500;
-     border: none;
-     border-radius: 50px;
+     border: 1px solid var(--border-color);
+     border-radius: 8px;
      cursor: pointer;
-     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-     font-family: 'Poppins', sans-serif;
-     position: relative;
-     overflow: hidden;
-     min-width: 140px;
-   }
-   
-   .control-btn::before {
-     content: '';
-     position: absolute;
-     top: 0;
-     left: -100%;
-     width: 100%;
-     height: 100%;
-     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-     transition: left 0.5s;
-   }
-   
-   .control-btn:hover::before {
-     left: 100%;
+     transition: all 0.2s ease;
+     background: var(--bg-white);
+     color: var(--text-dark);
+     min-width: 120px;
    }
    
    .control-btn:hover {
-     transform: translateY(-3px);
-     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-   }
-   
-   .control-btn:active {
-     transform: translateY(-1px);
+     background: var(--hover-bg);
+     border-color: var(--primary-color);
    }
    
    .restart {
-     background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+     background: var(--primary-color);
      color: white;
-     box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+     border-color: var(--primary-color);
    }
    
    .restart:hover {
-     box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+     background: #1d4ed8;
+     border-color: #1d4ed8;
    }
    
    .mute {
-     background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+     background: var(--text-light);
      color: white;
-     box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+     border-color: var(--text-light);
    }
    
    .mute:hover {
-     box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+     background: var(--text-dark);
+     border-color: var(--text-dark);
    }
    
    .reset-score {
-     background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+     background: var(--error-color);
      color: white;
-     box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+     border-color: var(--error-color);
    }
    
    .reset-score:hover {
-     box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+     background: #dc2626;
+     border-color: #dc2626;
    }
    
    /* Responsive design */
    @media (max-width: 600px) {
-     .tic-tac-toe-container {
-       padding: 15px;
-     }
-     
      .game-wrapper {
-       padding: 25px;
-       margin: 10px;
+       padding: 24px;
+       margin: 20px 10px;
      }
-     
-     .game-wrapper h1 {
-       font-size: 2.2em;
+   
+     .game-title {
+       font-size: 2rem;
+       margin-bottom: 32px;
      }
-     
+   
+     .opponents-grid {
+       grid-template-columns: 1fr;
+     }
+   
      .board {
-       grid-template-columns: repeat(3, 80px);
-       grid-gap: 10px;
-       padding: 15px;
+       max-width: 250px;
+       padding: 16px;
      }
-     
+   
      .cell {
-       width: 80px;
-       height: 80px;
-       font-size: 2.2em;
+       width: 70px;
+       height: 70px;
+       font-size: 24px;
      }
-     
+   
      .controls {
        flex-direction: column;
-       gap: 10px;
      }
-     
+   
      .control-btn {
-       min-width: auto;
        width: 100%;
      }
-     
+   
      .game-mode {
        flex-direction: column;
-       gap: 10px;
      }
-     
+   
      .mode-btn {
        width: 100%;
      }
    }
    
-   @media (max-width: 380px) {
-     .board {
-       grid-template-columns: repeat(3, 70px);
-     }
-     
-     .cell {
-       width: 70px;
-       height: 70px;
-       font-size: 2em;
-     }
-     
-     .game-wrapper {
-       padding: 20px;
-     }
+   /* Focus states for accessibility */
+   .mode-btn:focus,
+   .control-btn:focus,
+   .cell:focus,
+   .opponent-card:focus {
+     outline: 2px solid var(--primary-color);
+     outline-offset: 2px;
    }
    
-   /* Additional animations for enhanced user experience */
-   .cell {
-     animation: cell-appear 0.3s ease-out;
+   /* Subtle animations */
+   @keyframes fadeIn {
+     from { opacity: 0; transform: translateY(10px); }
+     to { opacity: 1; transform: translateY(0); }
    }
    
-   @keyframes cell-appear {
-     from {
-       opacity: 0;
-       transform: scale(0.8);
-     }
-     to {
-       opacity: 1;
-       transform: scale(1);
-     }
+   .cell.played {
+     animation: fadeIn 0.2s ease;
    }
    
-   /* Smooth status transitions */
-   .status {
-     transition: all 0.3s ease;
+   .board.thinking {
+     opacity: 0.7;
+     pointer-events: none;
    }
    
-   /* Enhanced button press feedback */
-   .control-btn:active,
-   .mode-btn:active {
-     transform: translateY(0px) scale(0.95);
+   .status.thinking::after {
+     content: '...';
+     animation: dots 1.5s infinite;
+   }
+   
+   @keyframes dots {
+     0%, 20% { content: '...'; }
+     40% { content: '..'; }
+     60% { content: '.'; }
+     80%, 100% { content: ''; }
    }
    

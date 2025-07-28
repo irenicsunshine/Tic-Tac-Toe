@@ -1,8 +1,8 @@
 // File: TicTacToe.js
 // Save Location: src/components/TicTacToe.js
-// Description: Main React component for Tic-Tac-Toe game with AI opponent
+// Description: Tic-Tac-Toe with named opponents and difficulty levels
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import './TicTacToe.css';
 
 const TicTacToe = () => {
@@ -12,58 +12,81 @@ const TicTacToe = () => {
   const [scores, setScores] = useState({ X: 0, O: 0 });
   const [isMuted, setIsMuted] = useState(false);
   const [gameMode, setGameMode] = useState('human');
-  const [aiThinking, setAiThinking] = useState(false);
+  const [selectedOpponent, setSelectedOpponent] = useState('alex');
+  const [isThinking, setIsThinking] = useState(false);
   const [winnerCells, setWinnerCells] = useState([]);
   const [audioContext, setAudioContext] = useState(null);
 
-  const winCombos = [
-    [0, 1, 2], [3, 4, 5], [6, 7, 8],
-    [0, 3, 6], [1, 4, 7], [2, 5, 8],
-    [0, 4, 8], [2, 4, 6]
-  ];
+  // Define opponents with personalities and difficulty levels
+  const opponents = {
+    alex: {
+      name: 'Alex',
+      difficulty: 'easy',
+      description: 'Friendly and makes occasional mistakes',
+      thinkingTime: [800, 1500],
+      errorRate: 0.3
+    },
+    maya: {
+      name: 'Maya',
+      difficulty: 'medium', 
+      description: 'Balanced player with good strategy',
+      thinkingTime: [1000, 2000],
+      errorRate: 0.15
+    },
+    victor: {
+      name: 'Victor',
+      difficulty: 'expert',
+      description: 'Master strategist, nearly unbeatable',
+      thinkingTime: [1500, 3000],
+      errorRate: 0.05
+    }
+  };
 
-  // Initialize audio context
+  const winCombos = useMemo(() => [
+    [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+    [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+    [0, 4, 8], [2, 4, 6] // diagonals
+  ], []);
+
+  // Audio system
   useEffect(() => {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    setAudioContext(ctx);
+    const initAudio = async () => {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        setAudioContext(ctx);
+      } catch (error) {
+        console.warn('Audio context not supported');
+      }
+    };
+    initAudio();
   }, []);
 
-  // Sound effects
-  const playTone = useCallback((frequency, duration, type = 'sine') => {
+  const playTone = useCallback((frequency, duration) => {
     if (isMuted || !audioContext) return;
-    
+
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
-    
+
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
-    
+
     oscillator.frequency.value = frequency;
-    oscillator.type = type;
+    oscillator.type = 'sine';
     
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
-    
+
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + duration);
   }, [isMuted, audioContext]);
 
   const sounds = {
-    move: () => playTone(800, 0.1, 'square'),
-    aiMove: () => playTone(600, 0.15, 'triangle'),
-    win: () => {
-      playTone(523, 0.2);
-      setTimeout(() => playTone(659, 0.2), 200);
-      setTimeout(() => playTone(784, 0.4), 400);
-    },
-    draw: () => {
-      playTone(400, 0.3, 'sawtooth');
-      setTimeout(() => playTone(300, 0.3, 'sawtooth'), 150);
-    },
-    click: () => playTone(1000, 0.05, 'square')
+    move: () => playTone(800, 0.1),
+    win: () => playTone(1000, 0.3),
+    click: () => playTone(600, 0.05)
   };
 
-  // Game logic functions
+  // Game logic
   const checkWinner = useCallback((boardState, player) => {
     for (let combo of winCombos) {
       const [a, b, c] = combo;
@@ -78,42 +101,116 @@ const TicTacToe = () => {
     return boardState.map((cell, index) => cell === '' ? index : null).filter(val => val !== null);
   }, []);
 
-  const simulateMove = useCallback((boardState, cellIndex, player) => {
-    const newBoard = [...boardState];
-    newBoard[cellIndex] = player;
-    return checkWinner(newBoard, player);
-  }, [checkWinner]);
+  // Advanced minimax for expert level
+  const minimax = useCallback((boardState, depth, isMaximizing, alpha = -Infinity, beta = Infinity) => {
+    const winner = checkWinner(boardState, 'O') ? 'O' : checkWinner(boardState, 'X') ? 'X' : null;
+    
+    if (winner === 'O') return 10 - depth;
+    if (winner === 'X') return depth - 10;
+    if (getEmptyCells(boardState).length === 0) return 0;
+    if (depth > 6) return 0;
 
-  const getBestMove = useCallback((boardState) => {
     const emptyCells = getEmptyCells(boardState);
-    if (emptyCells.length === 0) return null;
-
-    // 1. Check if AI can win
-    for (let cellIndex of emptyCells) {
-      if (simulateMove(boardState, cellIndex, 'O')) {
-        return cellIndex;
+    
+    if (isMaximizing) {
+      let maxEval = -Infinity;
+      for (let cellIndex of emptyCells) {
+        const newBoard = [...boardState];
+        newBoard[cellIndex] = 'O';
+        const evaluation = minimax(newBoard, depth + 1, false, alpha, beta);
+        maxEval = Math.max(maxEval, evaluation);
+        alpha = Math.max(alpha, evaluation);
+        if (beta <= alpha) break;
       }
-    }
-
-    // 2. Check if AI needs to block player
-    for (let cellIndex of emptyCells) {
-      if (simulateMove(boardState, cellIndex, 'X')) {
-        return cellIndex;
+      return maxEval;
+    } else {
+      let minEval = Infinity;
+      for (let cellIndex of emptyCells) {
+        const newBoard = [...boardState];
+        newBoard[cellIndex] = 'X';
+        const evaluation = minimax(newBoard, depth + 1, true, alpha, beta);
+        minEval = Math.min(minEval, evaluation);
+        beta = Math.min(beta, evaluation);
+        if (beta <= alpha) break;
       }
+      return minEval;
     }
+  }, [checkWinner, getEmptyCells]);
 
-    // 3. Strategic positions (center, corners, edges)
+  // Simple strategy for easy/medium levels
+  const getStrategicMove = useCallback((boardState) => {
+    const emptyCells = getEmptyCells(boardState);
+    
+    // Check for winning moves
+    for (let cellIndex of emptyCells) {
+      const newBoard = [...boardState];
+      newBoard[cellIndex] = 'O';
+      if (checkWinner(newBoard, 'O')) return cellIndex;
+    }
+    
+    // Check for blocking moves
+    for (let cellIndex of emptyCells) {
+      const newBoard = [...boardState];
+      newBoard[cellIndex] = 'X';
+      if (checkWinner(newBoard, 'X')) return cellIndex;
+    }
+    
+    // Prefer center
     if (boardState[4] === '') return 4;
-
+    
+    // Prefer corners
     const corners = [0, 2, 6, 8];
-    const availableCorners = corners.filter(index => boardState[index] === '');
+    const availableCorners = corners.filter(i => boardState[i] === '');
     if (availableCorners.length > 0) {
       return availableCorners[Math.floor(Math.random() * availableCorners.length)];
     }
-
-    // 4. Random empty cell
+    
+    // Random move
     return emptyCells[Math.floor(Math.random() * emptyCells.length)];
-  }, [getEmptyCells, simulateMove]);
+  }, [getEmptyCells, checkWinner]);
+
+  const getBestMove = useCallback((boardState) => {
+    const opponent = opponents[selectedOpponent];
+    const emptyCells = getEmptyCells(boardState);
+    
+    if (emptyCells.length === 0) return null;
+
+    // Introduce errors based on difficulty
+    if (Math.random() < opponent.errorRate) {
+      return emptyCells[Math.floor(Math.random() * emptyCells.length)];
+    }
+
+    switch (opponent.difficulty) {
+      case 'easy':
+        // Mix of random and strategic moves
+        return Math.random() < 0.6 ? getStrategicMove(boardState) : 
+               emptyCells[Math.floor(Math.random() * emptyCells.length)];
+      
+      case 'medium':
+        return getStrategicMove(boardState);
+      
+      case 'expert':
+        // Use full minimax
+        let bestMove = -1;
+        let bestValue = -Infinity;
+
+        for (let cellIndex of emptyCells) {
+          const newBoard = [...boardState];
+          newBoard[cellIndex] = 'O';
+          const moveValue = minimax(newBoard, 0, false);
+          
+          if (moveValue > bestValue) {
+            bestValue = moveValue;
+            bestMove = cellIndex;
+          }
+        }
+
+        return bestMove !== -1 ? bestMove : emptyCells[0];
+      
+      default:
+        return emptyCells[0];
+    }
+  }, [selectedOpponent, getEmptyCells, getStrategicMove, minimax]);
 
   const handleWin = useCallback((player, winCombo) => {
     sounds.win();
@@ -122,61 +219,51 @@ const TicTacToe = () => {
     setScores(prev => ({ ...prev, [player]: prev[player] + 1 }));
   }, [sounds]);
 
-  const handleDraw = useCallback(() => {
-    sounds.draw();
-    setGameFinished(true);
-  }, [sounds]);
-
-  const makeMove = useCallback((cellIndex, player, isAI = false) => {
-    if (gameFinished || board[cellIndex] !== '' || aiThinking) return;
+  const makeMove = useCallback((cellIndex, player, isOpponent = false) => {
+    if (gameFinished || board[cellIndex] !== '' || isThinking) return;
 
     const newBoard = [...board];
     newBoard[cellIndex] = player;
     setBoard(newBoard);
 
-    if (isAI) {
-      sounds.aiMove();
-    } else {
-      sounds.move();
-    }
+    sounds.move();
 
     const winCombo = checkWinner(newBoard, player);
     if (winCombo) {
       handleWin(player, winCombo);
-      return;
+    } else if (getEmptyCells(newBoard).length === 0) {
+      setGameFinished(true);
+    } else {
+      setCurrentPlayer(player === 'X' ? 'O' : 'X');
     }
+  }, [board, gameFinished, isThinking, sounds, checkWinner, handleWin, getEmptyCells]);
 
-    if (getEmptyCells(newBoard).length === 0) {
-      handleDraw();
-      return;
-    }
-
-    setCurrentPlayer(player === 'X' ? 'O' : 'X');
-  }, [board, gameFinished, aiThinking, sounds, checkWinner, handleWin, handleDraw, getEmptyCells]);
-
-  const aiMove = useCallback(() => {
-    if (gameFinished || aiThinking) return;
-
-    setAiThinking(true);
+  const opponentMove = useCallback(() => {
+    if (gameFinished || isThinking) return;
+    
+    setIsThinking(true);
+    const opponent = opponents[selectedOpponent];
+    const [minTime, maxTime] = opponent.thinkingTime;
+    const thinkingDuration = minTime + Math.random() * (maxTime - minTime);
     
     setTimeout(() => {
       const bestMoveIndex = getBestMove(board);
       if (bestMoveIndex !== null) {
         makeMove(bestMoveIndex, 'O', true);
       }
-      setAiThinking(false);
-    }, 800 + Math.random() * 1200);
-  }, [gameFinished, aiThinking, getBestMove, board, makeMove]);
+      setIsThinking(false);
+    }, thinkingDuration);
+  }, [gameFinished, isThinking, selectedOpponent, getBestMove, board, makeMove]);
 
-  // Handle AI move when it's AI's turn
   useEffect(() => {
-    if (gameMode === 'ai' && currentPlayer === 'O' && !gameFinished && !aiThinking) {
-      setTimeout(aiMove, 300);
+    if (gameMode === 'computer' && currentPlayer === 'O' && !gameFinished && !isThinking) {
+      const timer = setTimeout(opponentMove, 300);
+      return () => clearTimeout(timer);
     }
-  }, [currentPlayer, gameMode, gameFinished, aiThinking, aiMove]);
+  }, [currentPlayer, gameMode, gameFinished, isThinking, opponentMove]);
 
   const handleCellClick = (cellIndex) => {
-    if (gameMode === 'ai' && currentPlayer === 'O') return;
+    if (gameMode === 'computer' && currentPlayer === 'O') return;
     makeMove(cellIndex, currentPlayer);
   };
 
@@ -184,7 +271,7 @@ const TicTacToe = () => {
     setBoard(Array(9).fill(''));
     setCurrentPlayer('X');
     setGameFinished(false);
-    setAiThinking(false);
+    setIsThinking(false);
     setWinnerCells([]);
     sounds.click();
   };
@@ -204,74 +291,124 @@ const TicTacToe = () => {
     initGame();
   };
 
+  const selectOpponent = (opponentId) => {
+    setSelectedOpponent(opponentId);
+    if (gameMode === 'computer') {
+      initGame();
+    }
+    sounds.click();
+  };
+
   const getStatusMessage = () => {
+    const opponent = opponents[selectedOpponent];
+    
     if (gameFinished) {
       if (winnerCells.length > 0) {
-        return `${currentPlayer === 'X' ? 'O' : 'X'} Wins! 🎉`;
+        const winner = board[winnerCells[0]];
+        return `${winner === 'X' ? 'You' : opponent.name} win${winner === 'X' ? '' : 's'}!`;
       }
-      return "It's a draw! 🤝";
+      return "It's a draw!";
     }
-    if (aiThinking) {
-      return '🤖 AI is thinking...';
+    if (isThinking) {
+      return `${opponent.name} is thinking`;
     }
-    return `${currentPlayer}'s turn`;
+    if (gameMode === 'computer') {
+      return currentPlayer === 'X' ? 'Your turn' : `${opponent.name}'s turn`;
+    }
+    return `Player ${currentPlayer}'s turn`;
+  };
+
+  const getCellClass = (index) => {
+    let className = 'cell';
+    if (board[index] !== '') className += ' played';
+    if (winnerCells.includes(index)) className += ' winner';
+    if (board[index] === 'O' && gameMode === 'computer') className += ' opponent-move';
+    return className;
   };
 
   return (
     <div className="tic-tac-toe-container">
       <div className="game-wrapper">
-      <h1>Tic-Tac-Toe ◯ ✕</h1>
-
-    <div className="game-mode">
-      <button 
-        className={`mode-btn ${gameMode === 'human' ? 'active' : ''}`}
-        onClick={() => switchMode('human')}
-      >
-        ◯ ✕ Human vs Human
-      </button>
-      <button 
-        className={`mode-btn ${gameMode === 'ai' ? 'active' : ''}`}
-        onClick={() => switchMode('ai')}
-      >
-        ◯ ✕ Human vs AI
-      </button>
-    </div>
+        <h1 className="game-title">Tic Tac Toe</h1>
         
+        <div className="game-mode">
+          <button
+            className={`mode-btn ${gameMode === 'human' ? 'active' : ''}`}
+            onClick={() => switchMode('human')}
+          >
+            Human vs Human
+          </button>
+          <button
+            className={`mode-btn ${gameMode === 'computer' ? 'active' : ''}`}
+            onClick={() => switchMode('computer')}
+          >
+            Play vs Computer
+          </button>
+        </div>
+
+        {gameMode === 'computer' && (
+          <div className="opponent-selection">
+            <h3>Choose Your Opponent</h3>
+            <div className="opponents-grid">
+              {Object.entries(opponents).map(([id, opponent]) => (
+                <div
+                  key={id}
+                  className={`opponent-card ${selectedOpponent === id ? 'selected' : ''}`}
+                  onClick={() => selectOpponent(id)}
+                >
+                  <div className="opponent-name">{opponent.name}</div>
+                  <div className={`opponent-difficulty difficulty-${opponent.difficulty}`}>
+                    {opponent.difficulty.charAt(0).toUpperCase() + opponent.difficulty.slice(1)}
+                  </div>
+                  <div className="opponent-description">{opponent.description}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="scoreboard">
-          <div className="score-display">
-            <span>X: {scores.X}</span>
-            <span className="current-mode">
-              {gameMode === 'ai' ? 'Human vs AI' : 'Human vs Human'}
-            </span>
-            <span>O: {scores.O}</span>
+          <div className="score-item">
+            <div className="score-label">You</div>
+            <div className="score-value">{scores.X}</div>
+          </div>
+          <div className="current-opponent">
+            {gameMode === 'computer' ? opponents[selectedOpponent].name : 'Human Mode'}
+          </div>
+          <div className="score-item">
+            <div className="score-label">
+              {gameMode === 'computer' ? opponents[selectedOpponent].name : 'Player O'}
+            </div>
+            <div className="score-value">{scores.O}</div>
           </div>
         </div>
-        
-        <div className="status">{getStatusMessage()}</div>
-        
-        <div className={`board ${aiThinking ? 'thinking' : ''}`}>
+
+        <div className={`status ${isThinking ? 'thinking' : ''}`}>
+          {getStatusMessage()}
+        </div>
+
+        <div className={`board ${isThinking ? 'thinking' : ''}`}>
           {board.map((cell, index) => (
-            <div
+            <button
               key={index}
-              className={`cell ${cell ? 'played' : ''} ${
-                winnerCells.includes(index) ? 'winner' : ''
-              } ${cell === 'O' && gameMode === 'ai' ? 'ai-move' : ''}`}
+              className={getCellClass(index)}
               onClick={() => handleCellClick(index)}
+              disabled={gameFinished || (gameMode === 'computer' && currentPlayer === 'O') || isThinking}
             >
               {cell}
-            </div>
+            </button>
           ))}
         </div>
-        
+
         <div className="controls">
           <button className="control-btn restart" onClick={initGame}>
-            ↻ Restart Game
+            New Game
           </button>
           <button className="control-btn mute" onClick={toggleMute}>
-            {isMuted ? '🔇 Unmute' : '♪ Mute'}
+            {isMuted ? 'Unmute' : 'Mute'}
           </button>
           <button className="control-btn reset-score" onClick={resetScore}>
-            ⟲ Reset Score
+            Reset Score
           </button>
         </div>
       </div>
